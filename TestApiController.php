@@ -31,25 +31,33 @@ class TestApiController extends Controller
         $response = $this->apiService->callApi('GET', $url, [], $headers);
 
         if ($response && $response->successful()) {
-            return $response->json(); 
+            return response()->json([
+                'status' => true,
+                'statusCode' => $response->status(),
+                'data' => $response->json()
+            ]);
         }
 
-    
+
 
         //  ($response = null)
         if (!$response) {
             return response()->json([
+                'status' => false,
+                'statusCode' => $response->status(),
                 'error' => 'Service connection failed or timed out'
-            ], 504); // 504 Gateway Timeout 
+            ], 504); // 504 Gateway Timeout
         }
 
-     
+
         // API থেকে আসা এরর মেসেজটি দেখানোর চেষ্টা করি
         $errorMessage = $response->json('message') ?? $response->json('error') ?? 'Failed to fetch data';
 
         return response()->json([
+            'status' => false,
+            'statusCode' => $response->status(),
             'error' => $errorMessage
-        ], $response->status()); 
+        ], $response->status());
     }
 
 
